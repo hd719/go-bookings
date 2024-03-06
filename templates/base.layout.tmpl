@@ -229,7 +229,7 @@
         };
 
         async function custom(c) {
-          const { msg = "", title = "" } = c;
+          const { msg = "", title = "", willOpen, didOpen } = c;
 
           const value = await Swal.fire({
             title: title,
@@ -238,15 +238,18 @@
             focusConfirm: false,
             showCancelButton: true,
             willOpen: () => {
-              const elem = document.getElementById("reservation-dates-modal");
-              const rp = new DateRangePicker(elem, {
-                format: "yyyy-mm-dd",
-                showOnFocus: true,
-              });
+              if (willOpen) {
+                willOpen();
+              } else {
+                console.log("No willOpen function provided");
+              }
             },
             didOpen: () => {
-              document.getElementById("start").removeAttribute("disabled");
-              document.getElementById("end").removeAttribute("disabled");
+              if (didOpen) {
+                didOpen();
+              } else {
+                console.log("No didOpen function provided");
+              }
             },
             preConfirm: () => {
               return [
@@ -255,8 +258,6 @@
               ];
             },
           });
-
-          console.log("Dates", value);
 
           if (value.dismiss === Swal.DismissReason.cancel) {
             console.log("User has canceled the operation");
