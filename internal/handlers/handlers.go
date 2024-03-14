@@ -106,4 +106,38 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Get Reservation Data from the Post Req.
+	reservation := models.Reservation{
+		FirstName: r.Form.Get("first_name"),
+		LastName:  r.Form.Get("last_name"),
+		Phone:     r.Form.Get("phone"),
+		Email:     r.Form.Get("email"),
+	}
+
+	// PostForm contains the parsed form data from PATCH, POST or PUT body parameters.
+	form := forms.New(r.PostForm)
+
+	// Checking data....
+	// Does the form have an value that is not an empty string
+	// If the form has errors the Has func will create an error object
+	form.Has("first_name", r)
+
+	if !form.Valid() {
+		// Creating the data field and adding to TemplateData
+		data := make(map[string]interface{})
+		data["reservation"] = reservation
+
+		render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+
+		return
+	}
 }
