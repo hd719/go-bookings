@@ -100,8 +100,13 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	var emptyReservation models.Reservation
+	data := make(map[string]interface{})
+	data["reservation"] = emptyReservation
+
 	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
-		Form: forms.New(nil), // initializing an empty form when we go the reservation page
+		Form: forms.New(nil), // Initializing an empty form when we go the reservation page
+		Data: data,           // Create an empty reservation object when the page is first displayed
 	})
 }
 
@@ -123,10 +128,14 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// PostForm contains the parsed form data from PATCH, POST or PUT body parameters.
 	form := forms.New(r.PostForm)
 
-	// Checking data....
+	// Validation... (old)
 	// Does the form have an value that is not an empty string
 	// If the form has errors the Has func will create an error object
-	form.Has("first_name", r)
+	// form.Has("first_name", r)
+
+	// Validation... continued (new)
+	form.Required("first_name", "last_name", "email")
+	form.MinLength("first_name", 3, r)
 
 	// Form is not Valid:
 	// Create the Form and Data fields that are going to be passed to TemplateData and get rendered on the client
