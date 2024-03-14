@@ -140,6 +140,42 @@
 
     {{ end }}
 
+    {{ with.Error }}
+    <script>
+      function notify(msg, msgType) {
+        notie.alert({
+          type: msgType,
+          text: msg,
+        });
+      }
+      notify("{{.}}", "error");
+    </script>
+    {{ end }}
+
+    {{ with.Flash }}
+    <script>
+      function notify(msg, msgType) {
+        notie.alert({
+          type: msgType,
+          text: msg,
+        });
+      }
+      notify("{{.}}", "flash");
+    </script>
+    {{ end }}
+
+    {{ with.Warning }}
+    <script>
+      function notify(msg, msgType) {
+        notie.alert({
+          type: msgType,
+          text: msg,
+        });
+      }
+      notify("{{.}}", "warning");
+    </script>
+    {{ end }}
+
     <script>
       let attention = Prompt();
 
