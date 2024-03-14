@@ -128,8 +128,9 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// If the form has errors the Has func will create an error object
 	form.Has("first_name", r)
 
+	// Form is not Valid:
+	// Create the Form and Data fields that are going to be passed to TemplateData and get rendered on the client
 	if !form.Valid() {
-		// Creating the data field and adding to TemplateData
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
 
@@ -140,4 +141,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	// Form is Valid:
+	fmt.Println("The form is valid")
 }
