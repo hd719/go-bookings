@@ -51,7 +51,7 @@ func GetRoutes() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
-	mux.Use(NoSurf)
+	// mux.Use(NoSurf) // Check for cross site request forgery -> needs this for POST requests we can comment this out for testing purposes
 	mux.Use(SessionLoad)
 
 	mux.Get("/", Repo.Home)
