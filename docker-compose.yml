@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  # Database Services
+  postgres:
+    image: postgres:15.3-alpine3.18
+    restart: always
+    environment:
+      - POSTGRES_DB=go-bookings
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=system
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
