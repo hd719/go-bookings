@@ -2,6 +2,7 @@ package render
 
 import (
 	"encoding/gob"
+	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -14,6 +15,8 @@ import (
 
 var session *scs.SessionManager
 var testApp config.AppConfig
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 func TestMain(m *testing.M) {
 	// Here we initialize what we are going to store in the session
@@ -21,6 +24,16 @@ func TestMain(m *testing.M) {
 
 	// change this to true when in production
 	testApp.InProduction = false
+
+	// Creating Info Logger
+	// Print logs to the terminal (stdout)
+	infoLog = log.New(os.Stdout, "INFO \t", log.Ldate|log.Ltime)
+	testApp.InfoLog = infoLog
+
+	// Creating Error Logger
+	// Print logs to the terminal (stdout)
+	errorLog = log.New(os.Stdout, "ERROR \t", log.Ldate|log.Ltime|log.Lshortfile)
+	testApp.ErrorLog = errorLog
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
