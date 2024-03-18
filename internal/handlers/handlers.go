@@ -6,31 +6,41 @@ import (
 	"net/http"
 
 	"github.com/hd719/go-bookings/internal/config"
+	"github.com/hd719/go-bookings/internal/driver"
 	"github.com/hd719/go-bookings/internal/forms"
 	"github.com/hd719/go-bookings/internal/helpers"
 	"github.com/hd719/go-bookings/internal/models"
 	"github.com/hd719/go-bookings/internal/render"
+	"github.com/hd719/go-bookings/internal/repository"
+	"github.com/hd719/go-bookings/internal/repository/dbrepo"
 )
 
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
 var Repo *Repository
 
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) {
 	config := &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
+		// DB:  dbrepo.NewMongoRepo(db.Mongo, a),
 	}
 
-	return config
+	// return config
+
+	Repo = config
 }
 
-func NewHandlers(r *Repository) {
-	Repo = r
-}
+// This may not be needed, but DO NOT DELETE
+// func NewHandlers(r *Repository) {
+// 	Repo = r
+// }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
+	m.DB.AllUsers()
 	render.RenderTemplate(w, r, "home.page.tmpl", &models.TemplateData{})
 }
 
