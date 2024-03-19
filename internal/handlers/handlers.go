@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/hd719/go-bookings/internal/config"
 	"github.com/hd719/go-bookings/internal/driver"
@@ -115,12 +117,36 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+
+	layout := "2006-01-02"
+
+	startDate, err := time.Parse(layout, sd)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	endDate, err := time.Parse(layout, ed)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	// Convert string to an ID
+	roomId, err := strconv.Atoi(r.Form.Get("id"))
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
 	// Get Reservation Data from the Post Req.
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Phone:     r.Form.Get("phone"),
 		Email:     r.Form.Get("email"),
+		StartDate: startDate,
+		EndDate:   endDate,
+		RoomID:    roomId,
 	}
 
 	// PostForm contains the parsed form data from PATCH, POST or PUT body parameters.
@@ -152,6 +178,13 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	// Form is Valid after passing validation:
 	fmt.Println("The form is valid")
+
+	// Inserting the reservation into the database
+	err = m.DB.InsertReservation(reservation)
+	if err != nil {
+		fmt.Sprintf("Error inserting reservation into the database, reservation: %s", reservation)
+		helpers.ServerError(w, err)
+	}
 
 	// Adding the reservation object from line 121 into our session
 	m.App.Session.Put(r.Context(), "reservation", reservation)
