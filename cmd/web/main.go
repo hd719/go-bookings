@@ -77,7 +77,7 @@ func run() (*driver.DB, error) {
 	// Connect to DB
 	log.Println("Connecting to DB...")
 	db, err := driver.ConnectSQL("host=localhost port=5431 dbname=go-bookings user=system password=secret")
-	// db, err := driver.ConnectMongo("host=localhost port=27107 dbname=go-bookings user=system password=secret") ex.
+	// db, err := driver.ConnectMongo("host=localhost port=27107 dbname=go-bookings user=system password=secret")
 	if err != nil {
 		log.Fatal("Cannot connect to DB!")
 	}
