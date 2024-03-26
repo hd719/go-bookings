@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/go-chi/chi"
 	"github.com/hd719/go-bookings/internal/config"
 	"github.com/hd719/go-bookings/internal/driver"
 	"github.com/hd719/go-bookings/internal/forms"
@@ -40,9 +40,9 @@ func NewRepo(a *config.AppConfig, db *driver.DB) {
 }
 
 // This may not be needed, but DO NOT DELETE
-// func NewHandlers(r *Repository) {
-// 	Repo = r
-// }
+func NewHandlers(r *Repository) {
+	Repo = r
+}
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	m.DB.AllUsers()
@@ -116,10 +116,26 @@ type jsonResponse struct {
 	RoomID    string `json:"room_id"`
 	StartDate string `json:"start_date"`
 	EndDate   string `json:"end_date"`
+	Message   string `json:"message"`
 }
 
 // AvailabilityJSON
 func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	// parse the form
+	err := r.ParseForm()
+	if err != nil {
+		// cant parse form
+		resp := jsonResponse{
+			OK:      false,
+			Message: "internal server error",
+		}
+
+		out, _ := json.MarshalIndent(resp, "", "     ")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+		return
+	}
+
 	sd := r.Form.Get("start")
 	ed := r.Form.Get("end")
 
@@ -130,6 +146,20 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 	roomID, _ := strconv.Atoi(r.Form.Get("room_id"))
 
 	available, _ := m.DB.SearchAvailabilityByDatesForRoomId(startDate, endDate, roomID)
+
+	if err != nil {
+		// cant parse form
+		resp := jsonResponse{
+			OK:      false,
+			Message: "error connecting to db",
+		}
+
+		out, _ := json.MarshalIndent(resp, "", "     ")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+		return
+	}
+
 	resp := jsonResponse{
 		OK:        available,
 		StartDate: sd,
@@ -139,7 +169,8 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 	indent := "     "
 
-	out, err := json.MarshalIndent(resp, "", indent)
+	// Removed the error check since we handle all aspects of json
+	out, _ := json.MarshalIndent(resp, "", indent)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
@@ -300,9 +331,11 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 
 // Displays list of available room
 func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
-	roomId, err := strconv.Atoi(chi.URLParam(r, "room-id"))
+	exploded := strings.Split(r.RequestURI, "/")
+	roomId, err := strconv.Atoi(exploded[2])
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "missing url parameter")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
