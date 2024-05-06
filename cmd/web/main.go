@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/gob"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -56,13 +57,25 @@ func run() (*driver.DB, error) {
 	gob.Register(models.Restriction{})
 	gob.Register(map[string]int{})
 
+	// read flags
+	inProduction := flag.Bool("production", true, "Application is in production")
+	useCache := flag.Bool("cache", true, "Use template cache")
+	dbName := flag.String("dbname", "", "Database Name")
+	dbUser := flag.String("dbuser", "", "Database Password")
+	dbPort := flag.String("dbport", "5432", "Database Port")
+	dbSSL := flag.String("dbssl", "disable", "Database ssl settings (disable, prefer, require)")
+	dbhost := flag.String("dbhost", "localhost", "Database Host")
+
+	flag.Parse()
+
 	// Create an email channel
 	mailChan := make(chan models.MailData)
 	// Add the channel to our App Config
 	app.MailChan = mailChan
 
 	// change this to true when in production
-	app.InProduction = false
+	app.InProduction = *inProduction
+	app.UseCache = *useCache
 
 	// Creating Info Logger
 	// Print logs to the terminal (stdout)
@@ -86,7 +99,8 @@ func run() (*driver.DB, error) {
 
 	// Connect to DB
 	log.Println("Connecting to DB...")
-	db, err := driver.ConnectSQL("host=localhost port=5431 dbname=go-bookings user=system password=secret")
+	connectionString := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=secret sslmode=%s", *dbhost, *dbPort, *dbName, *dbUser, *dbSSL)
+	db, err := driver.ConnectSQL(connectionString)
 	// db, err := driver.ConnectMongo("host=localhost port=27107 dbname=go-bookings user=system password=secret")
 	if err != nil {
 		log.Fatal("Cannot connect to DB!")
@@ -99,7 +113,6 @@ func run() (*driver.DB, error) {
 	}
 
 	app.TemplateCache = tc
-	app.UseCache = false
 
 	// This related to the the extra code in the handlers file on line 37, DO NOT DELETE
 	// repo := handlers.NewRepo(&app, db)
