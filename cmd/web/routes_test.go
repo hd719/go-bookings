@@ -5,12 +5,10 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
-	"github.com/hd719/go-bookings/internal/config"
 )
 
 func TestRoutes(t *testing.T) {
-	var app config.AppConfig
-	mux := routes(&app)
+	mux := routes()
 
 	// Testing the type that is return from routes() func
 	switch v := mux.(type) {
