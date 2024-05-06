@@ -3,10 +3,13 @@ package dbrepo
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/hd719/go-bookings/internal/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (m *postgresDBRepo) AllUsers() bool {
@@ -154,3 +157,83 @@ func (m *postgresDBRepo) GetRoomById(id int) (models.Room, error) {
 // What does the query do? Lists all available rooms within the dates given
 // Get me all of the room ids and room names from the rooms table where the id from the rooms table (rooms.id) is not in this query (select rr.room_id from room_restrictions rr where '2021-02-19' < rr.end_date and '2021-02-21' > rr.start_date -> returns a row of room ids that are booked within the given dates)
 // select rooms.id, rooms.room_name from rooms where rooms.id not in (select rr.room_id from room_restrictions rr where '2021-02-19' < rr.end_date and '2021-02-21' > rr.start_date)
+
+// Returns a user by Id
+func (m *postgresDBRepo) GetUserById(id int) (models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `select id, first_name, last_name, email, password, access_level, created_at, updated_at from users where id = $1`
+
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	var u models.User
+	err := row.Scan(
+		&u.ID,
+		&u.FirstName,
+		&u.LastName,
+		&u.Email,
+		&u.Password,
+		&u.AccessLevel,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	)
+
+	if err != nil {
+		return u, err
+	}
+
+	return u, nil
+}
+
+// Updates user
+func (m *postgresDBRepo) UpdateUser(u models.User) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `update users set first_name = $1, last_name = $2, email = $3, access_level = $4, updated_at = $5`
+
+	_, err := m.DB.ExecContext(ctx, query,
+		u.FirstName,
+		u.LastName,
+		u.Email,
+		u.AccessLevel,
+		time.Now(),
+	)
+	if err != nil {
+		fmt.Println("Failed to update User")
+		return err
+	}
+
+	fmt.Println("User updated!")
+	return nil
+}
+
+// Authenticates a user
+func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// This will be the id of the user if the credentials are correct
+	var id int
+
+	// Will hold the password we get from the DB
+	var hashedPassword string
+
+	// check to if the email exists in the Db
+	row := m.DB.QueryRowContext(ctx, "select id, password from users where email $1", email)
+	err := row.Scan(&id, &hashedPassword)
+	if err != nil {
+		return id, "", err
+	}
+
+	// Check to see if the passwords match
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(testPassword))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return 0, "", errors.New("incorrect password")
+	} else if err != nil {
+		return 0, "", err
+	}
+
+	return id, hashedPassword, nil
+}
