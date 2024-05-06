@@ -330,12 +330,6 @@ The . is a special variable in Go templates that refers to the current data. -->
                 console.log("No didOpen function provided");
               }
             },
-            preConfirm: () => {
-              return [
-                document.getElementById("start").value,
-                document.getElementById("end").value,
-              ];
-            },
           });
 
           if (value.dismiss === Swal.DismissReason.cancel) {
