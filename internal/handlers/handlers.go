@@ -295,6 +295,23 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// Adding the reservation object from line 121 into our session
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
+	// Send email notification to the guest
+	htmlMessage := fmt.Sprintf(`
+		<strong>Reservation Confirmation</strong>
+
+		Dear, %s, <br>
+		This is to confirm your reservation %s to %s
+	`, reservation.FirstName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+
+	msg := models.MailData{
+		To:      reservation.Email,
+		From:    "me@here.com",
+		Subject: "Reservation Confirmation",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
+
 	// Http Redirect with a response code of 303
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
 }
