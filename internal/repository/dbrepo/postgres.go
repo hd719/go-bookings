@@ -3,6 +3,7 @@ package dbrepo
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/hd719/go-bookings/internal/models"
@@ -52,7 +53,7 @@ func (m *postgresDBRepo) InsertRoomRestriction(r models.RoomRestriction) error {
 }
 
 // SearchAvailabilityByDates returns true if availability exists for a specific room and false if no availability exists
-func (m *postgresDBRepo) SearchAvailabilityByDatesForRoom(start, end time.Time, roomId int) (bool, error) {
+func (m *postgresDBRepo) SearchAvailabilityByDatesForRoomId(start, end time.Time, roomId int) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -73,7 +74,44 @@ func (m *postgresDBRepo) SearchAvailabilityByDatesForRoom(start, end time.Time, 
 	return false, nil
 }
 
-// Logic Ex.
+// SearchAvailabilityForAllRooms returns a slice of available rooms if any for a given date range
+func (m *postgresDBRepo) SearchAvailabilityForAllRooms(start, end time.Time) ([]models.Room, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var rooms []models.Room
+
+	query := `select rooms.id, rooms.room_name from rooms where rooms.id not in (select rr.room_id from room_restrictions rr where '2021-02-19' < rr.end_date and '2021-02-21' > rr.start_date)`
+
+	rows, err := m.DB.QueryContext(ctx, query, start, end)
+	if err != nil {
+		return rooms, err
+	}
+
+	for rows.Next() {
+		var room models.Room
+
+		err := rows.Scan(
+			&room.ID,
+			&room.RoomName,
+		)
+
+		if err != nil {
+			return rooms, err
+		}
+
+		rooms = append(rooms, room)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Fatal("Error scanning rows", err)
+		return rooms, err
+	}
+
+	return rooms, nil
+}
+
+// Logic Ex. for SearchAvailabilityByDates
 // --existing reservation
 // start_date: 2021-02-01
 // end_date: 2021-02-04
@@ -89,3 +127,7 @@ func (m *postgresDBRepo) SearchAvailabilityByDatesForRoom(start, end time.Time, 
 
 // -- both start and end dates are outside of all existing reservations, but cover the reservations
 // select count(id) from room_restrictions where '2021-31-01' < end_date and "2021-02-05" > start_date
+
+// What does the query do? Lists all available rooms within the dates given
+// Get me all of the room ids and room names from the rooms table where the id from the rooms table (rooms.id) is not in this query (select rr.room_id from room_restrictions rr where '2021-02-19' < rr.end_date and '2021-02-21' > rr.start_date -> returns a row of room ids that are booked within the given dates)
+// select rooms.id, rooms.room_name from rooms where rooms.id not in (select rr.room_id from room_restrictions rr where '2021-02-19' < rr.end_date and '2021-02-21' > rr.start_date)
