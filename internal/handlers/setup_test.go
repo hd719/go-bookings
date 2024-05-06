@@ -16,6 +16,7 @@ import (
 	"github.com/hd719/go-bookings/internal/config"
 	"github.com/hd719/go-bookings/internal/models"
 	"github.com/hd719/go-bookings/internal/render"
+	"github.com/hd719/go-bookings/internal/repository/dbrepo"
 	"github.com/justinas/nosurf"
 )
 
@@ -60,7 +61,7 @@ func GetRoutes() http.Handler {
 	// repo := NewRepo(&app)
 	// NewHandlers(repo)
 
-	NewRepo(&app)
+	NewTestingRepo(&app)
 
 	render.NewRenderer(&app)
 
@@ -140,4 +141,13 @@ func CreateTestTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	return myCache, nil
+}
+
+func NewTestingRepo(a *config.AppConfig) {
+	config := &Repository{
+		App: a,
+		DB:  dbrepo.NewTestRepo(a),
+	}
+
+	Repo = config
 }
