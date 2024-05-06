@@ -72,6 +72,7 @@
           const rp = new DateRangePicker(elem, {
             format: "yyyy-mm-dd",
             showOnFocus: true,
+            minDate: new Date(),
           });
         },
         didOpen: () => {
@@ -79,18 +80,36 @@
           document.getElementById("end").removeAttribute("disabled");
         },
         callback: function (result) {
-          console.log("result:", result); // Why arent we using this and getting data from the form?????
+          console.log("result:", result); // Why aren't we using this and getting data from the form?????
 
           let form = document.getElementById("check-availability-form");
           let formData = new FormData(form); // Extracts the data from the form
           formData.append("csrf_token", "{{.CSRFToken}}");
+          formData.append("room_id", "1");
 
           fetch("/search-availability-json", {
             method: "POST",
             body: formData,
           })
             .then((response) => response.json())
-            .then((data) => console.log(data));
+            .then((data) => {
+              if (data.ok) {
+                console.log("Room is available!");
+                attention.alert({
+                  title: "Available!",
+                  msg: "Room is available!",
+                  // willClose: () => {
+                  //   form.submit();
+                  // },
+                });
+              } else {
+                console.log("Room is not available!");
+                attention.alert({
+                  title: "Not available!",
+                  msg: "Room is not available!",
+                });
+              }
+            });
         },
       });
     });
