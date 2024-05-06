@@ -661,7 +661,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 				}
 			} else {
 				// its blocked
-				blockMap[y.StartDate.Format("2006-01-2")] = y.RestrictionID
+				blockMap[y.StartDate.Format("2006-01-2")] = y.ID
 			}
 		}
 
@@ -728,7 +728,8 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 
 	for _, x := range rooms {
 		curMap := m.App.Session.Get(r.Context(), fmt.Sprintf("block_map_%d", x.ID)).(map[string]int)
-		dump(curMap)
+		// dump(x.RoomName)
+		// dump(curMap)
 
 		// Loop over everything in the block map
 		for date, restrictionId := range curMap {
@@ -738,6 +739,10 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 					if !form.Has(fmt.Sprintf("remove_block_%d_%s", x.ID, date)) {
 						// delete the restriction by id
 						log.Println("would delete block with date", date, "and restriction id of", restrictionId)
+						err := m.DB.DeleteBlockForRoomById(restrictionId)
+						if err != nil {
+							log.Println(err)
+						}
 					}
 				}
 			}
@@ -749,9 +754,15 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 		if strings.HasPrefix(name, "add_block") {
 			exploded := strings.Split(name, "_")
 			roomId, _ := strconv.Atoi(exploded[2])
+			t, _ := time.Parse("2006-01-2", exploded[3])
 
 			// insert a new block
 			log.Println("Would insert block for room id", roomId, "for date", exploded[3])
+			err := m.DB.InsertBlockForRoomById(roomId, t)
+			if err != nil {
+				log.Println("Error inserting room id")
+				log.Println(err)
+			}
 		}
 	}
 
