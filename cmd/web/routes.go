@@ -11,11 +11,10 @@ import (
 
 func routes() http.Handler {
 	mux := chi.NewRouter()
-
 	mux.Use(middleware.Recoverer)
+
 	mux.Use(NoSurf) // Ignore all requests that does not have proper Cross Site Token, which is why post requests do not work
 	mux.Use(SessionLoad)
-
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
 	mux.Get("/generals-quarters", handlers.Repo.Generals)
@@ -44,8 +43,10 @@ func routes() http.Handler {
 	// Anything that is prefixed with /admin is a protected route
 	mux.Route("/admin", func(mux chi.Router) {
 		mux.Use(Auth)
-
 		mux.Get("/dashboard", handlers.Repo.AdminDashboard)
+		mux.Get("/reservations-new", handlers.Repo.AdminNewReservations)
+		mux.Get("/reservations-all", handlers.Repo.AdminAllReservations)
+		mux.Get("/reservations-calendar", handlers.Repo.AdminReservationsCalendar)
 	})
 
 	return mux
