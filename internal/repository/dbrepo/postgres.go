@@ -50,3 +50,42 @@ func (m *postgresDBRepo) InsertRoomRestriction(r models.RoomRestriction) error {
 
 	return nil
 }
+
+// SearchAvailabilityByDates returns true if availability exists for a specific room and false if no availability exists
+func (m *postgresDBRepo) SearchAvailabilityByDatesForRoom(start, end time.Time, roomId int) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// Iterate through all the rows for a given room and see if there are any overlapping dates
+	query := `select count(id) from room_restrictions where room_id = $1 and $2 < end_date and $3 > start_date`
+
+	row := m.DB.QueryRowContext(ctx, query, roomId, start, end)
+	var numRows int
+	err := row.Scan(&numRows)
+	if err != nil {
+		return false, err
+	}
+
+	if numRows == 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// Logic Ex.
+// --existing reservation
+// start_date: 2021-02-01
+// end_date: 2021-02-04
+
+// -- start date is exactly the same as existing reservation
+// select count(id) from room_restrictions where '2021-02-01' < end_date and "2021-02-04" > start_date
+
+// -- start date is before existing reservation and end date is the same
+// select count(id) from room_restrictions where '2021-01-31' < end_date and "2021-02-04" > start_date
+
+// -- end date is after the existing reservation and start date is the same
+// select count(id) from room_restrictions where '2021-02-01' < end_date and "2021-02-05" > start_date
+
+// -- both start and end dates are outside of all existing reservations, but cover the reservations
+// select count(id) from room_restrictions where '2021-31-01' < end_date and "2021-02-05" > start_date
