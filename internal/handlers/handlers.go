@@ -119,8 +119,10 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	sd := r.Form.Get("start_date")
 	ed := r.Form.Get("end_date")
+	fmt.Println(sd)
+	fmt.Println(ed)
 
-	layout := "2006-01-02"
+	layout := "2006-01-02" // the format we want our time to be in
 
 	startDate, err := time.Parse(layout, sd)
 	if err != nil {
@@ -133,7 +135,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert string to an ID
-	roomId, err := strconv.Atoi(r.Form.Get("id"))
+	roomId, err := strconv.Atoi(r.Form.Get("room_id"))
 	if err != nil {
 		helpers.ServerError(w, err)
 	}
@@ -179,7 +181,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// Form is Valid after passing validation:
 	fmt.Println("The form is valid")
 
-	// Inserting the reservation into the database
+	// Inserting the into the database
 	err = m.DB.InsertReservation(reservation)
 	if err != nil {
 		fmt.Sprintf("Error inserting reservation into the database, reservation: %s", reservation)
