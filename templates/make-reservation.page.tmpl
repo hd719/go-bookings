@@ -8,9 +8,20 @@
 
       {{$res := index .Data "reservation"}}
 
+      <p>
+        <strong>Reservation Details</strong> <br />
+        Room: {{ $res.Room.RoomName }} <br />
+        Arrival:{{index .StringMap "start_date"}} <br />
+        Departure:{{index .StringMap "end_date"}}
+      </p>
+
       <form method="post" action="" class="" novalidate>
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+        <input type="hidden" name="start_date" value="{{index .StringMap "start_date"
 
+        }}" /> <input type="hidden" name="end_date" value="{{index .StringMap "end_date"
+
+        }}" />
         <div class="form-group mt-3">
           <label for="first_name">First Name:</label>
           {{with .Form.Errors.Get "first_name"}}
@@ -58,28 +69,14 @@
         </div>
 
         <div class="form-group">
-          <label for="start_date">Start Date</label>
-          <input
-            type="text"
-            name="start_date"
-            id="start_date"
-            class="form-control"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="end_date">End Date</label>
-          <input
-            type="text"
-            name="end_date"
-            id="end_date"
-            class="form-control"
-          />
-        </div>
-
-        <div class="form-group">
           <label for="room_id">Room Id</label>
-          <input type="text" name="room_id" id="room_id" class="form-control" />
+          <input
+            type="text"
+            name="room_id"
+            id="room_id"
+            class="form-control"
+            value="{{ $res.RoomID }}"
+          />
         </div>
 
         <hr />
