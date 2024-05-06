@@ -140,7 +140,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Form is Valid:
+	// Form is Valid after passing validation:
 	fmt.Println("The form is valid")
 
 	// Adding the reservation object from line 121 into our session
