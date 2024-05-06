@@ -18,7 +18,6 @@ const portNumber = ":8080"
 var app config.AppConfig
 var session *scs.SessionManager
 
-// main is the main function
 func main() {
 
 	// change this to true when in production
