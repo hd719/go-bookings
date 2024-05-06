@@ -29,6 +29,12 @@ Reservation Calendar
 
     {{range $rooms}}
       {{$roomID := .ID}}
+      {{$blocks := index $.Data (printf "block_map_%d" .ID)}}
+      {{$reservations := index $.Data (printf "reservation_map_%d" .ID)}}
+
+      <div>Reservations {{$reservations}}</div>
+      <br>
+      <div>Blocks {{$blocks}}</div>
 
       <h4 class="mt-4">{{.RoomName}}</h4>
 
@@ -42,7 +48,16 @@ Reservation Calendar
           <tr>
             {{range $index := iterate $dim}}
               <td class="text-center">
-               <input type="checkbox">
+                  <!-- <input type="checkbox"> -->
+                  <input
+                    {{if gt (index $blocks (printf "%s-%s-%d" $curYear $curMonth (add $index 1))) 0}}
+                      checked
+                      name="remove_block_{{$roomID}}_{{printf "%s-%s-%d" $curYear $curMonth (add $index 1)}}"
+                      value="{{index $blocks (printf "%s-%s-%d" $curYear $curMonth (add $index 1))}}"
+                    {{else}}
+                      name="add_block_{{$roomID}}_{{printf "%s-%s-%d" $curYear $curMonth (add $index 1)}}"
+                    {{end}}
+                      type="checkbox"/>
               </td>
             {{end}}
           </tr>

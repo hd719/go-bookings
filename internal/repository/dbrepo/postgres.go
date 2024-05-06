@@ -431,7 +431,7 @@ func (m *postgresDBRepo) GetRestrictionsForRoomByDate(roomId int, start, end tim
 	var restrictions []models.RoomRestriction
 
 	// The "coalesce" -> if reservation_id is null use 0 otherwise use the id
-	query := `select id, coalesce (reservation_id, 0), restriction_id, room_id, start_date, end_date
+	query := `select id, coalesce(reservation_id, 0), restriction_id, room_id, start_date, end_date
 	from room_restrictions where $1 < end_date and $2 >= start_date and room_id = $3 `
 
 	rows, err := m.DB.QueryContext(ctx, query, start, end, roomId)
