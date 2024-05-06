@@ -30,8 +30,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.SQL.Close()
 	log.Println("Connected to the DB :)")
+	defer db.SQL.Close()
+
+	fmt.Println(fmt.Sprintf("Staring mail server..."))
+	defer close(app.MailChan)
+	listenForMail()
 
 	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
 
@@ -50,6 +54,11 @@ func run() (*driver.DB, error) {
 	gob.Register(models.User{})
 	gob.Register(models.Room{})
 	gob.Register(models.Restriction{})
+
+	// Create an email channel
+	mailChan := make(chan models.MailData)
+	// Add the channel to our App Config
+	app.MailChan = mailChan
 
 	// change this to true when in production
 	app.InProduction = false
