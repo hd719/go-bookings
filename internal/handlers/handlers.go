@@ -154,4 +154,26 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	// Form is Valid:
 	fmt.Println("The form is valid")
+
+	// Adding the reservation object from line 121 into our session
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	// Http Redirect with a response code of 303
+	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
+}
+
+func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
+	// Doing type asserstion .(models.Reservation) forcefully asserting the type
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		log.Println("Cannot get item from session")
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	render.RenderTemplate(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 }
