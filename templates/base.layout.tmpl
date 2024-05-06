@@ -1,3 +1,9 @@
+<!-- Go Templates -->
+<!-- This tells the Go template engine to execute the base layout template and pass the current data to it.
+The base layout template is defined in the base.layout.tmpl file.
+The . in the { {template "base" .} } line is the current data.
+The . is a special variable in Go templates that refers to the current data. -->
+
 {{define "base"}}
 <!DOCTYPE html>
 <html lang="en">
@@ -108,20 +114,19 @@
       </div>
     </nav>
 
+    <!-- Here we are putting the content for each of the pages (home, about, etc.). -->
     {{block "content" .}}
 
     {{ end }}
+    <!-- ---- -->
 
-    <footer class="my-footer">
-      <div class="row">
-        <div class="col">left</div>
+    <!-- Footer -->
+    {{block "footer" .}}
 
-        <div class="col">center</div>
+    {{ end }}
+    <!-- ---- -->
 
-        <div class="col">right</div>
-      </div>
-    </footer>
-
+    <!-- import js packages -->
     <script
       src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
       integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
@@ -135,11 +140,15 @@
     <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.2/dist/js/datepicker-full.min.js"></script>
     <script src="https://unpkg.com/notie"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.js"></script>
+    <!-- ---- -->
 
+    <!-- This block is for JavaScript that is specific to each page (generals, majors, and search-availability pages) -->
     {{block "js" .}}
 
     {{ end }}
+    <!-- ---- -->
 
+    <!-- This block is for JavaScript that is global to all pages -->
     {{ with.Error }}
     <script>
       function notify(msg, msgType) {
@@ -318,6 +327,7 @@
         };
       }
     </script>
+    <!-- ---- -->
   </body>
 </html>
 {{ end }}
