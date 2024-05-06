@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/hd719/go-bookings/pkg/config"
-	"github.com/hd719/go-bookings/pkg/handlers"
+	"github.com/hd719/go-bookings/internal/config"
+	"github.com/hd719/go-bookings/internal/handlers"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"

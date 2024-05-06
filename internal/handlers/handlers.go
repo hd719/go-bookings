@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/hd719/go-bookings/pkg/config"
-	"github.com/hd719/go-bookings/pkg/models"
-	"github.com/hd719/go-bookings/pkg/render"
+	"github.com/hd719/go-bookings/internal/config"
+	"github.com/hd719/go-bookings/internal/models"
+	"github.com/hd719/go-bookings/internal/render"
 )
 
 type Repository struct {
