@@ -5,9 +5,21 @@ Reservation Calendar
 {{ end }}
 
 {{define "content"}}
+  {{$now := index .Data "now"}}
+  {{$rooms := index .Data "rooms"}}
+  {{$dim := index .IntMap "days_in_month"}}
+  {{$firstDay := index .IntMap "first_day"}}
+  {{$lastDay := index .IntMap "last_day"}}
+  {{$lastMonth := index .IntMap "last_month"}}
+  {{$lastMonthYear := index .IntMap "last_month_year"}}
+  {{$nextMonth := index .IntMap "next_month"}}
+  {{$nextMonthYear := index .IntMap "next_month_year"}}
+  {{$month := index .IntMap "month"}}
+  {{$year := index .IntMap "year"}}
+
   <div class="col-md-12">
     <div class="text-center">
-      <h3>{{index .StringMap "this_month"}} / {{index .StringMap "this_month_year"}}</h3>
+      <h3>{{formatDate $now "January"}} / {{formatDate $now "2006"}}</h3>
     </div>
 
     <div class="float-left">
@@ -19,5 +31,30 @@ Reservation Calendar
     </div>
 
     <div class="clearfix"></div>
+
+
+    {{range $rooms}}
+      {{$roomID := .ID}}
+
+      <h4 class="mt-4">{{.RoomName}}</h4>
+
+      <div class="table-response">
+        <table class="table table-bordered table-sm">
+          <tr class="table-dark">
+            {{range $index := iterate $dim}}
+              <td class="text-center">{{add $index 1}}</td>
+            {{end}}
+          </tr>
+
+          <tr>
+            {{range $index := iterate $dim}}
+              <td class="text-center">
+               <input type="checkbox">
+              </td>
+            {{end}}
+          </tr>
+        </table>
+      </div>
+    {{end}}
   </div>
 {{ end }}

@@ -18,7 +18,30 @@ import (
 var app *config.AppConfig
 var pathToTemplates = "./templates"
 var functions = template.FuncMap{
-	"humanDate": HumanDate,
+	"humanDate":  HumanDate,
+	"formatDate": FormatDate,
+	"iterate":    Iterate,
+	"add":        Add,
+}
+
+func Add(a, b int) int {
+	return a + b
+}
+
+// Iterate returns a slice of ints starting at 1 going to count
+func Iterate(count int) []int {
+	var i int
+	var items []int
+
+	for i = 0; i < count; i++ {
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func FormatDate(t time.Time, f string) string {
+	return t.Format(f)
 }
 
 func NewRenderer(a *config.AppConfig) {
