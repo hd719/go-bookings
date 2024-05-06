@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/hd719/go-bookings/internal/config"
+	"github.com/hd719/go-bookings/internal/forms"
 	"github.com/hd719/go-bookings/internal/models"
 	"github.com/hd719/go-bookings/internal/render"
 )
@@ -96,4 +97,13 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, r, "contact.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil), // initializing an empty form when we go the reservation page
+	})
+}
+
+func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 }
