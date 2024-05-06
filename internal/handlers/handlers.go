@@ -163,12 +163,18 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
-	// Doing type asserstion .(models.Reservation) forcefully asserting the type
+	// Pulling out the reservation data from our session
+	// Doing type assertion .(models.Reservation) forcefully asserting the type
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
 		log.Println("Cannot get item from session")
+		m.App.Session.Put(r.Context(), "error", "Can't get Reservation from Session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// Removing the reservation object from the our session storage because the reservation is now COMPLETE - we do not need it in our session storage in our client
+	m.App.Session.Remove(r.Context(), "reservation")
 
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
