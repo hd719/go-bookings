@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/hd719/go-bookings/internal/config"
 	"github.com/hd719/go-bookings/internal/models"
@@ -16,9 +17,17 @@ import (
 
 var app *config.AppConfig
 var pathToTemplates = "./templates"
+var functions = template.FuncMap{
+	"humanDate": HumanDate,
+}
 
 func NewRenderer(a *config.AppConfig) {
 	app = a
+}
+
+// Returns time in YYYY-MM-DD format
+func HumanDate(t time.Time) string {
+	return t.Format("2006-01-02")
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
@@ -81,7 +90,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 
 		// Parse the data in the page variable and store that parsed data in the name variable
-		ts, err := template.New(name).ParseFiles(page)
+		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
 			return myCache, err
 		}
