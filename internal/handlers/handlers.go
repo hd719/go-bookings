@@ -119,9 +119,6 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	sd := r.Form.Get("start_date")
 	ed := r.Form.Get("end_date")
-	fmt.Println(sd)
-	fmt.Println(ed)
-
 	layout := "2006-01-02" // the format we want our time to be in
 
 	startDate, err := time.Parse(layout, sd)
@@ -181,11 +178,29 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// Form is Valid after passing validation:
 	fmt.Println("The form is valid")
 
-	// Inserting the into the database
-	err = m.DB.InsertReservation(reservation)
+	// Inserting the reservation from the POST request into the database and getting the id of the reservation back
+	var newReservationId int
+	newReservationId, err = m.DB.InsertReservation(reservation)
 	if err != nil {
 		fmt.Sprintf("Error inserting reservation into the database, reservation: %s", reservation)
 		helpers.ServerError(w, err)
+		return
+	}
+
+	// Once the reservation has been posted (the room is now reserved), inserting the room restriction into the db
+	restriction := models.RoomRestriction{
+		StartDate:     startDate,
+		EndDate:       endDate,
+		RoomID:        roomId,
+		ReservationID: newReservationId,
+		RestrictionID: 1,
+	}
+
+	err = m.DB.InsertRoomRestriction(restriction)
+	if err != nil {
+		fmt.Sprintf("Error inserting room restriction into the database, reservation: %s, restriction %s", reservation, restriction)
+		helpers.ServerError(w, err)
+		return
 	}
 
 	// Adding the reservation object from line 121 into our session
