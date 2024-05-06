@@ -29,7 +29,7 @@ All Reservations
       {{range $res}}
       <tr>
         <td>{{.ID}}</td>
-        <td><a href="/admin/reservations/all/{{.ID}}"/>{{.LastName}}</td>
+        <td><a href="/admin/reservations/all/{{.ID}}/show"/>{{.LastName}}</td>
         <td>{{.Room.RoomName}}</td>
         <td>{{humanDate .StartDate}}</td>
         <td>{{humanDate .EndDate}}</td>
