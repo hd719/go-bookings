@@ -274,9 +274,18 @@ The . is a special variable in Go templates that refers to the current data. -->
         };
 
         async function custom(c) {
-          const { msg = "", title = "", willOpen, didOpen } = c;
+          const {
+            msg = "",
+            title = "",
+            willOpen,
+            didOpen,
+            icon = "",
+            showConfirmButton = true,
+          } = c;
 
           const value = await Swal.fire({
+            showConfirmButton,
+            icon,
             title: title,
             html: msg,
             backdrop: false,
