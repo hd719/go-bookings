@@ -8,14 +8,8 @@ Reservation Calendar
   {{$now := index .Data "now"}}
   {{$rooms := index .Data "rooms"}}
   {{$dim := index .IntMap "days_in_month"}}
-  {{$firstDay := index .IntMap "first_day"}}
-  {{$lastDay := index .IntMap "last_day"}}
-  {{$lastMonth := index .IntMap "last_month"}}
-  {{$lastMonthYear := index .IntMap "last_month_year"}}
-  {{$nextMonth := index .IntMap "next_month"}}
-  {{$nextMonthYear := index .IntMap "next_month_year"}}
-  {{$month := index .IntMap "month"}}
-  {{$year := index .IntMap "year"}}
+  {{$curMonth := index .IntMap "this_month"}}
+  {{$curYear := index .IntMap "this_month_year"}}
 
   <div class="col-md-12">
     <div class="text-center">
@@ -45,7 +39,6 @@ Reservation Calendar
               <td class="text-center">{{add $index 1}}</td>
             {{end}}
           </tr>
-
           <tr>
             {{range $index := iterate $dim}}
               <td class="text-center">
