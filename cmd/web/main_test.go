@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestRun(t *testing.T) {
-	err := run()
+	_, err := run()
 
 	// Testing if error is nil
 	if err != nil {
