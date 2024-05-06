@@ -34,8 +34,8 @@
 
     <form method="post" action="/admin/reservations-calendar">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-      <input type="hidden" name="m" value="{{index .StringMap " this_month"}}">
-      <input type="hidden" name="y" value="{{index .StringMap " this_month_year"}}">
+      <input type="hidden" name="m" value="{{$curMonth}}">
+      <input type="hidden" name="y" value="{{$curYear}}">
 
       {{range $rooms}}
         {{$roomID := .ID}}
@@ -63,11 +63,16 @@
                   <span class="text-danger">R</span>
                 </a>
                 {{else}}
-                  <input {{if gt (index $blocks (printf "%s-%s-%d" $curYear $curMonth (add $index 1))) 0 }} checked
-                    name="remove_block_{{$roomID}}_{{printf " %s-%s-%d" $curYear $curMonth (add $index 1)}}"
-                    value="{{index $blocks (printf " %s-%s-%d" $curYear $curMonth (add $index 1))}}" {{else}}
-                    name="add_block_{{$roomID}}_{{printf " %s-%s-%d" $curYear $curMonth (add $index 1)}}" value="1" {{end}}
-                    type="checkbox">
+                  <input
+                    {{if gt (index $blocks (printf "%s-%s-%d" $curYear $curMonth (add $index 1))) 0 }}
+                      checked
+                      name="remove_block_{{$roomID}}_{{printf " %s-%s-%d" $curYear $curMonth (add $index 1)}}"
+                      value="{{index $blocks (printf " %s-%s-%d" $curYear $curMonth (add $index 1))}}"
+                    {{else}}
+                      name="add_block_{{$roomID}}_{{printf " %s-%s-%d" $curYear $curMonth (add $index 1)}}"
+                      value="1"
+                    {{end}}
+                      type="checkbox">
                   {{end}}
               </td>
               {{end}}
