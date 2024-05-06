@@ -33,6 +33,8 @@ func routes() http.Handler {
 	mux.Post("/make-reservation", handlers.Repo.PostReservation)
 	mux.Get("/reservation-summary", handlers.Repo.ReservationSummary)
 
+	mux.Get("/user/login", handlers.Repo.ShowLogin)
+
 	// . is the root level directory of the app
 	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
