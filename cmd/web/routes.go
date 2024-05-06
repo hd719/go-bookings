@@ -35,6 +35,7 @@ func routes() http.Handler {
 
 	mux.Get("/user/login", handlers.Repo.ShowLogin)
 	mux.Post("/user/login", handlers.Repo.PostShowLogin)
+	mux.Get("/user/logout", handlers.Repo.Logout)
 
 	// . is the root level directory of the app
 	fileServer := http.FileServer(http.Dir("./static/"))
