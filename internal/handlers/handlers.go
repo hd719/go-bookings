@@ -136,6 +136,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// Validation... continued (new)
 	form.Required("first_name", "last_name", "email")
 	form.MinLength("first_name", 3, r)
+	form.IsEmail("email")
 
 	// Form is not Valid:
 	// Create the Form and Data fields that are going to be passed to TemplateData and get rendered on the client
