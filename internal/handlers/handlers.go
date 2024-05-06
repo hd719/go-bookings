@@ -238,7 +238,6 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	var newReservationId int
 	newReservationId, err = m.DB.InsertReservation(reservation)
 	if err != nil {
-		fmt.Sprintf("Error inserting reservation into the database, reservation: %s", reservation)
 		helpers.ServerError(w, err)
 		return
 	}
@@ -254,7 +253,6 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	err = m.DB.InsertRoomRestriction(restriction)
 	if err != nil {
-		fmt.Sprintf("Error inserting room restriction into the database, reservation: %s, restriction %s", reservation, restriction)
 		helpers.ServerError(w, err)
 		return
 	}

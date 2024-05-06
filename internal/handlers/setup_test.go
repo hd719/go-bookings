@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"testing"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
@@ -26,7 +27,7 @@ var pathToTemplates = "../../templates"
 var infoLog *log.Logger
 var errorLog *log.Logger
 
-func GetRoutes() http.Handler {
+func TestMain(m *testing.M) {
 	gob.Register(models.Reservation{})
 
 	app.InProduction = false
@@ -65,6 +66,10 @@ func GetRoutes() http.Handler {
 
 	render.NewRenderer(&app)
 
+	os.Exit(m.Run())
+}
+
+func GetRoutes() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
