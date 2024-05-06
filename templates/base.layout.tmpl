@@ -231,7 +231,7 @@
         async function custom(c) {
           const { msg = "", title = "" } = c;
 
-          const { value: formValues } = await Swal.fire({
+          const value = await Swal.fire({
             title: title,
             html: msg,
             backdrop: false,
@@ -256,8 +256,20 @@
             },
           });
 
-          if (formValues) {
-            Swal.fire(JSON.stringify(formValues));
+          console.log("Dates", value);
+
+          if (value.dismiss === Swal.DismissReason.cancel) {
+            console.log("User has canceled the operation");
+          } else if (value.value.length !== 0 && value.isConfirmed) {
+            if (c.callback) {
+              console.log("User clicked OK and callback function provided");
+              let dates = value.value;
+              c.callback(dates);
+            } else {
+              console.log("No callback function provided");
+            }
+          } else {
+            console.log("Operation canceled");
           }
         }
 
