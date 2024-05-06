@@ -28,15 +28,19 @@ type Repository struct {
 var Repo *Repository
 
 func NewRepo(a *config.AppConfig, db *driver.DB) {
-	config := &Repository{
+	// config := &Repository{
+	// 	App: a,
+	// 	DB:  dbrepo.NewPostgresRepo(db.SQL, a),
+	// 	// DB:  dbrepo.NewMongoRepo(db.Mongo, a),
+	// }
+
+	// return config
+
+	Repo = &Repository{
 		App: a,
 		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 		// DB:  dbrepo.NewMongoRepo(db.Mongo, a),
 	}
-
-	// return config
-
-	Repo = config
 }
 
 // This may not be needed, but DO NOT DELETE
@@ -502,6 +506,39 @@ func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request
 
 	render.Template(w, r, "admin-all-reservations.page.tmpl", &models.TemplateData{
 		Data: data,
+	})
+}
+
+func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request) {
+	// Grab the url and split it by the "/"
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[4])
+	if err != nil {
+		fmt.Sprint("error getting user id from params")
+		helpers.ServerError(w, err)
+		return
+	}
+
+	src := exploded[3]
+
+	stringMap := make(map[string]string)
+	stringMap["src"] = src
+
+	// Get reservation from the database
+	res, err := m.DB.GetReservationById(id)
+	log.Println(res)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["reservation"] = res
+
+	render.Template(w, r, "admin-reservations-show.page.tmpl", &models.TemplateData{
+		StringMap: stringMap,
+		Data:      data,
+		Form:      forms.New(nil),
 	})
 }
 
